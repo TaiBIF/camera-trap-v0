@@ -7,7 +7,10 @@ const app = loopback();
 const session = require('express-session');
 const MongoStore = require('connect-mongo')(session);
 
+let { ctMongoDb40 } = require('./datasources.json');
+
 if (app.get('env') === 'development') {
+  ctMongoDb40 = require('./datasources.development.js');
   app.use((req, res, next) => {
     const startTime = new Date();
     const originEndFunc = res.end;
@@ -35,7 +38,7 @@ app.use(
   session({
     secret: 'camera trap reveals secrets',
     name: 'ctp_session_id',
-    store: new MongoStore({ url: 'mongodb://jupyter.taibif.tw/ctp' }),
+    store: new MongoStore({ url: ctMongoDb40.url }),
     saveUninitialized: false,
     resave: false,
     proxy: true,
