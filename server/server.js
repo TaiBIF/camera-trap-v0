@@ -10,7 +10,8 @@ const MongoStore = require('connect-mongo')(session);
 let { ctMongoDb40 } = require('./datasources.json');
 
 if (app.get('env') === 'development') {
-  ctMongoDb40 = require('./datasources.development.js');
+  // eslint-disable-next-line prefer-destructuring
+  ctMongoDb40 = require('./datasources.development.js').ctMongoDb40;
   app.use((req, res, next) => {
     const startTime = new Date();
     const originEndFunc = res.end;
@@ -31,6 +32,7 @@ if (app.get('env') === 'development') {
   });
 }
 
+console.log(ctMongoDb40.url);
 /**
  * @todo Investigate the implication of providing the store property.
  */
