@@ -7,8 +7,27 @@ const errors = require('../../common/errors');
 
 const csvStringify = util.promisify(csv.stringify);
 
-function uploadToS3(params) {
+function uploadToS3(params, idTokenHash) {
   const AWS = require('aws-sdk');
+  const AWS_REGION = 'ap-northeast-1';
+  const IDENTITY_POOL_ID = 'ap-northeast-1:3d5edbfb-834c-4284-85f5-a4ec29d38ef0';
+  const USER_POOL_ID = 'ap-northeast-1_R2iDn5W3B';
+  // eslint-disable-next-line max-len
+  const AWS_ID_PROVIDER = `cognito-idp.ap-northeast-1.amazonaws.com/${USER_POOL_ID}`;
+
+  AWS.config.update({ region: AWS_REGION });
+
+  AWS.config.credentials = new AWS.CognitoIdentityCredentials({
+    IdentityPoolId: IDENTITY_POOL_ID,
+    Logins: (() => {
+      const result = {};
+      result[AWS_ID_PROVIDER] = idTokenHash;
+      return result;
+    })(),
+  });
+
+  // await AWS.config.credentials.getPromise();
+
   const s3 = new AWS.S3();
 
   return new Promise((resolve, reject) => {
@@ -376,7 +395,7 @@ module.exports = function(MultimediaAnnotation) {
 
       const toMatch = {};
 
-      const { projectId, projectTitle, site, subSite, species, effectiveTimeInterval } = data;
+      const { projectId, site, subSite, species, effectiveTimeInterval, idTokenHash } = data;
       if (projectId) {
         toMatch.projectId = projectId;
       } else {
@@ -539,6 +558,10 @@ module.exports = function(MultimediaAnnotation) {
 
                   let csv = '';
 
+                  if (results.length === 0) {
+                    return callback(null, null);
+                  }
+
                   results.forEach((annotation) => {
                     annotation.tokens.forEach(token => {
                       const csvRecord = {};
@@ -589,7 +612,7 @@ module.exports = function(MultimediaAnnotation) {
                   };
 
                   const s3UrlBase = 'https://s3-ap-northeast-1.amazonaws.com';
-                  uploadToS3(params).then(() => {
+                  uploadToS3(params, idTokenHash).then(() => {
                     const http = require('http');
                     const calcPath = 'basic-calculation';
                     const calcBaseUrl = 'http://52.193.13.151:80';

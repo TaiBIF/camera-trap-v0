@@ -89,37 +89,51 @@ module.exports = function(app) {
 
     const indexProjectId = [
       {
-        'projectId': 1,
+        projectId: 1,
       },
     ];
 
     const indexYear = [
       {
-        'year': 1,
+        year: 1,
       },
     ];
 
     const indexMonth = [
       {
-        'month': 1,
+        month: 1,
       },
     ];
 
     const indexDay = [
       {
-        'day': 1,
+        day: 1,
       },
     ];
 
     const indexHour = [
       {
-        'hour': 1,
+        hour: 1,
       },
     ];
 
     const indexRelatedUploadSessions = [
       {
-        'related_upload_sessions': 1,
+        related_upload_sessions: 1,
+      },
+    ];
+
+    const indexDateTimeCorrectedTimestamp = [
+      {
+        date_time_corrected_timestamp: 1,
+      },
+    ];
+
+    const indexForGeneralSort = [
+      {
+        cameraLocation: 1,
+        date_time_corrected_timestamp: 1,
+        uploaded_file_name: 1,
       },
     ];
 
@@ -138,7 +152,9 @@ module.exports = function(app) {
       indexMonth,
       indexDay,
       indexHour,
+      indexDateTimeCorrectedTimestamp,
       indexRelatedUploadSessions,
+      indexForGeneralSort,
     ];
     createIndex(MultimediaAnnotation, indexes);
 
