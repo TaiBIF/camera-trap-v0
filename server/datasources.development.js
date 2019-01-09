@@ -1,8 +1,8 @@
 module.exports = {
   ctMongoDb40: {
-    host: '10.0.40.144',
+    host: 'dev.mongodb.camera-trap.tw',
     port: 27017,
-    url: 'mongodb://10.0.40.144:27017/ctp',
+    url: 'mongodb://dev.mongodb.camera-trap.tw:27017/ctp',
     database: 'ctp',
     password: '',
     name: 'ctMongoDb40',
