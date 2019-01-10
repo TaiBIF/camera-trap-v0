@@ -162,4 +162,21 @@ module.exports = function(Model, options) {
       });
     });
   };
+
+  Model.remoteMethod('docCount', {
+    http: { path: '/doc-count', verb: 'post' },
+    accepts: { arg: 'data', type: 'object', http: { source: 'body' } },
+    returns: { arg: 'count', type: 'number' },
+  });
+
+  Model.docCount = function(data, callback) {
+    Model.getDataSource().connector.connect((err, db) => {
+      const _callback = callback;
+      const collection = db.collection(Model.definition.name);
+
+      collection.count(data.query, (_err, result) => {
+        _callback(null, result);
+      });
+    });
+  };
 };

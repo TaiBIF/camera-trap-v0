@@ -7,6 +7,9 @@ module.exports = function(app) {
             console.log(erri);
           } else {
             console.log(`Index ${ret} created.`);
+            if (ret === null) {
+              console.log(`Failed: ${JSON.stringify(index, null, 2)}`);
+            }
           }
         });
       });
