@@ -35,7 +35,7 @@ ctMongoDb40.connector.connect(async (err, db) => {
   const countQuerys = [];
   const deleteQuerys = [];
   const queryConditions = [];
-  pids.slice(15).map(pid => {
+  pids.map(pid => {
     if (projectCameraLocations[pid].length > 0) {
       console.log(pid);
       const queryCondition = {
