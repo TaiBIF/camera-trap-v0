@@ -132,6 +132,12 @@ module.exports = function(app) {
       },
     ];
 
+    const indexDateTimeCorrectedTimestampDesc = [
+      {
+        date_time_corrected_timestamp: -1,
+      },
+    ];
+
     const indexForGeneralSort = [
       {
         cameraLocation: 1,
@@ -156,6 +162,7 @@ module.exports = function(app) {
       indexDay,
       indexHour,
       indexDateTimeCorrectedTimestamp,
+      indexDateTimeCorrectedTimestampDesc,
       indexRelatedUploadSessions,
       indexForGeneralSort,
     ];

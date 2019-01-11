@@ -22,10 +22,9 @@ module.exports = function(Model, options) {
       }
       // */
 
-      let limit = typeof req.limit === 'number' ? req.limit : 1000;
+      let limit = typeof req.limit === 'number' ? req.limit : 0;
 
-      if (limit <= 0) limit = 1000;
-      if (limit >= 10000) limit = 10000;
+      if (limit <= 0) limit = 0;
 
       const sort = req.sort || {};
       const skip = typeof req.skip === 'number' ? req.skip : 0;
