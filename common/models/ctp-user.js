@@ -59,7 +59,6 @@ module.exports = function(CtpUsers) {
       })(),
     });
 
-    console.log('Before get cred');
     AWS.config.credentials.get(err => {
       if (err) {
         return callback(err);
@@ -70,13 +69,11 @@ module.exports = function(CtpUsers) {
       const tokenobj = JSON.parse(atob(payload));
       const userId = tokenobj['cognito:username'];
 
-      console.log('Before db connection');
       CtpUsers.getDataSource().connector.connect((_err, db) => {
         if (_err) {
           return callback(_err);
         }
         const dateTime = Date.now() / 1000;
-        console.log('Before update user');
         db.collection('CtpUser')
           .updateOne(
             { _id: userId },
@@ -107,7 +104,6 @@ module.exports = function(CtpUsers) {
             },
           )
           .then(() => {
-            console.log('User updated');
             const userInfo = {
               userId,
               // eslint-disable-next-line camelcase
@@ -118,21 +114,16 @@ module.exports = function(CtpUsers) {
             // eslint-disable-next-line camelcase
             req.session.user_info = userInfo;
             const redirectUrl = url.parse(redirect);
-            console.log(redirect);
-            console.log(redirectUrl);
             if (
               LOGIN_REDIRECT_HOSTNAME_WHITE_LIST.indexOf(
                 redirectUrl.hostname,
               ) >= 0
             ) {
-              console.log('Redirecting...');
               return res.redirect(redirect);
             }
-            console.log('Not redirected');
             callback(null, userId);
           })
           .catch(error => {
-            console.log('User update failed');
             callback(error);
           });
       });
