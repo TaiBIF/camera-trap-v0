@@ -32,12 +32,7 @@ module.exports = function(Model, options) {
           .split('Basic ')
           .pop();
         const userPassword = Buffer.from(base64string, 'base64').toString();
-        if (
-          userPassword ===
-          `${process.env.AWS_LAMBDA_AS_USER}:${
-            process.env.PASSWD_AWS_LAMBDA_AS_USER
-          }`
-        ) {
+        if (userPassword === 'camera-trap') {
           userInfo = { userId: context.req.headers['camera-trap-user-id'] };
           // Make lambda work like normal user
           // eslint-disable-next-line
