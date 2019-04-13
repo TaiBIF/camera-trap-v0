@@ -10,7 +10,7 @@ orbs:
 
     commands:
       checkout_install:
-        description: Cehckout sources and install node_modules
+        description: Checkout sources and install node_modules
         steps:
           - checkout
           - restore_cache:
