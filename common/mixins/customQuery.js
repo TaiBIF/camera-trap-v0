@@ -2,7 +2,7 @@ module.exports = function(Model, options) {
   Model.remoteMethod('query', {
     http: { path: '/query', verb: 'post' },
     accepts: { arg: 'data', type: 'object', http: { source: 'body' } },
-    returns: { arg: 'results', type: [{ type: 'object' }] },
+    returns: { root: true, type: 'object' },
   });
 
   Model.query = function(req, callback) {
@@ -29,65 +29,67 @@ module.exports = function(Model, options) {
       const sort = req.sort || {};
       const skip = typeof req.skip === 'number' ? req.skip : 0;
 
-      collection.find(
-        req.query,
-        { projection: req.projection, limit, skip, sort },
-        (_err, data) => {
-          if (_err) {
-            _callback(_err);
-          } else {
-            data.toArray((__err, result) => {
-              if (
-                Model.definition.name === 'MultimediaAnnotationRevision' &&
-                result.length > 0
-              ) {
-                const cu = db.collection('CtpUser');
-                const ctpUserTable = {};
-                result.forEach(item => {
-                  item.revisions.forEach(revision => {
-                    if (revision.modifiedBy)
-                      ctpUserTable[revision.modifiedBy] = null;
-                  });
-                });
-                const ctpUsers = Object.keys(ctpUserTable);
-                cu.find({ _id: { $in: ctpUsers } }, (___err, usersQuery) => {
-                  if (___err) {
-                    return _callback(___err);
-                  }
-                  usersQuery.toArray((____err, users) => {
-                    if (____err) {
-                      return _callback(____err);
-                    }
-                    users.forEach(user => {
-                      ctpUserTable[user._id] = user;
-                    });
-                    result.forEach((item, iid, itemArr) => {
-                      itemArr[iid].revisions.forEach(
-                        (revision, rid, revArr) => {
-                          if (revision.modifiedBy) {
-                            revArr[rid].modifiedBy = {
-                              _id: ctpUserTable[revision.modifiedBy]._id,
-                              name: ctpUserTable[revision.modifiedBy].name,
-                            };
-                          } else {
-                            revArr[rid].modifiedBy = {
-                              _id: 'NA',
-                              name: 'NA',
-                            };
-                          }
-                        },
-                      );
-                    });
-                    return _callback(null, result);
-                  });
-                });
-              } else {
-                _callback(null, result);
+      Promise.all([
+        collection
+          .find(req.query, {
+            projection: req.projection,
+            limit,
+            skip,
+            sort,
+          })
+          .toArray(),
+        collection.countDocuments(req.query),
+      ])
+        .then(([result, total]) => {
+          if (
+            Model.definition.name !== 'MultimediaAnnotationRevision' ||
+            result.length <= 0
+          ) {
+            return [result, total];
+          }
+
+          // Model.definition.name === 'MultimediaAnnotationRevision'
+          const cu = db.collection('CtpUser');
+          const ctpUserTable = {};
+          result.forEach(item => {
+            item.revisions.forEach(revision => {
+              if (revision.modifiedBy) {
+                ctpUserTable[revision.modifiedBy] = null;
               }
             });
-          }
-        },
-      );
+          });
+          const ctpUsers = Object.keys(ctpUserTable);
+          return cu
+            .find({ _id: { $in: ctpUsers } })
+            .toArray()
+            .then(users => {
+              users.forEach(user => {
+                ctpUserTable[user._id] = user;
+              });
+              result.forEach((item, iid, itemArr) => {
+                itemArr[iid].revisions.forEach((revision, rid, revArr) => {
+                  if (revision.modifiedBy) {
+                    revArr[rid].modifiedBy = {
+                      _id: ctpUserTable[revision.modifiedBy]._id,
+                      name: ctpUserTable[revision.modifiedBy].name,
+                    };
+                  } else {
+                    revArr[rid].modifiedBy = {
+                      _id: 'NA',
+                      name: 'NA',
+                    };
+                  }
+                });
+              });
+              return [result, total];
+            });
+        })
+        .then(([result, total]) => {
+          _callback(null, { results: result, total, limit, skip });
+        })
+        .catch(error => {
+          _callback(error);
+        });
     });
   };
 
