@@ -4,7 +4,7 @@
     "connector": "memory"
   },
   "ctMongoDb40": {
-    "host": "mongodb.camera-trap.tw",
+    "host": "dev.mongodb.camera-trap.tw",
     "port": 27017,
     "url": "mongodb://mongodb.camera-trap.tw:27017/ctp",
     "database": "ctp",
