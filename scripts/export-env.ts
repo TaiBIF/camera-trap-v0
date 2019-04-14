@@ -1,3 +1,4 @@
+// @ts-ignore
 import env from '../common/.env';
 
 const exportEnv = Object.entries(env).reduce(
