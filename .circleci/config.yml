@@ -80,7 +80,7 @@ workflows:
       - node10/aws-deploy:
           filters:
             branches:
-              only: /^(prod|dev|ci)$/
+              only: /^(master-2018)$/
           requires:
             - lint
             - test
